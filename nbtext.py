@@ -13,13 +13,17 @@ try:
 except:
     "Wordcloud -- hmmm"
 
+def totals(top=200):
+    import requests
+    r = requests.get("https://api.nb.no/ngram/totals", json={'top':top})
+    return dict(r.json())
 
 def navn(urn):
     import requests
     if type(urn) is list:
         urn = urn[0]
     r = requests.get('https://api.nb.no/ngram/tingnavn', json={'urn':urn})
-    return r.json()
+    return dict(r.json())
     
 def urn_from_text(T):
     """Return URNs as 13 digits (any sequence of 13 digits is counted as an URN)"""
@@ -769,6 +773,19 @@ def konk_to_html(jsonkonk):
     res = "<table>{rows}</table>".format(rows=rows)   
     return res
 
+def central_characters(graph, n=10):
+    import networkx as nx
+    from collections import Counter
+    
+    res = Counter(nx.degree_centrality(graph)).most_common(n)
+    return res
+
+def central_betweenness_characters(graph, n=10):
+    import networkx as nx
+    from collections import Counter
+    
+    res = Counter(nx.betweenness_centrality(graph)).most_common(n)
+    return res
     
 
 def get_urnkonk(word, params=dict(), html=True):
