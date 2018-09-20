@@ -58,7 +58,7 @@ def pure_urn(data):
     return res
 
 
-def forskjell(first,second, rf, rs, years=(1980, 2010),smooth=1, corpus='bok'):
+def difference(first,second, rf, rs, years=(1980, 2010),smooth=1, corpus='bok'):
     """Compute difference of difference (first/second)/(rf/rs)"""
     try:
         a_first = nb_ngram(first, years=years, smooth=smooth, corpus=corpus)
