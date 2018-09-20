@@ -14,6 +14,13 @@ except:
     "Wordcloud -- hmmm"
 
 
+def navn(urn):
+    import requests
+    if type(urn) is list:
+        urn = urn[0]
+    r = requests.get('https://api.nb.no/ngram/tingnavn', json={'urn':urn})
+    return r.json()
+    
 def urn_from_text(T):
     """Return URNs as 13 digits (any sequence of 13 digits is counted as an URN)"""
     import re
@@ -631,7 +638,7 @@ def get_freq(urn, top=50, cutoff=3):
 def check_words(urn, ordbag):
     if type(urn) is list:
         urn = urn[0]
-    ordliste = get_freq(urn, top=50000, cutoff=1)
+    ordliste = get_freq(urn, top=50000, cutoff=0)
     res = Counter()
     for w in ordbag:
         res[w] = ordliste[w]
