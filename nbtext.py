@@ -300,7 +300,22 @@ class Cluster:
         return res
          
         
+def wildcardsearch(params = {'word': '', 'freq_lim':50, 'limit':50, 'factor':2}):
+    res = requests.get('https://api.nb.no/ngram/wildcards', params = params)
+    if res.status_code == 200:
+        result = res.json()
+    else:
+        result = {'status':'feil'}
+    resultat = pd.DataFrame.from_dict(result, orient='index')
+    if not(resultat.empty):
+        resultat.columns = [params['word']]
+    return resultat
 
+def sorted_wildcardsearch(params):
+    res = wildcardsearch(params)
+    if not res.empty:
+        res = res.sort_values(by=params['word'], ascending=False)
+    return res
             
 def make_newspaper_network(key, wordbag, titel='%', yearfrom='1980', yearto='1990', limit=500):
     import networkx as nx
