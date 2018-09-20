@@ -16,6 +16,23 @@ except:
 
 ngram_plot = lambda df,x=10,y=5 : df.plot(figsize=(x,y))
 
+def forskjell(first,second, rf, rs, years=(1980, 2010),smooth=1, corpus='bok'):
+    try:
+        a_first = nb_ngram(first, years=years, smooth=smooth, corpus=corpus)
+        a_second = nb_ngram(second, years=years, smooth=smooth, corpus=corpus)
+        a = a_first.join(a_second)  
+        b_first = nb_ngram(rf, years=years, smooth=smooth, corpus=corpus)
+        b_second = nb_ngram(rs, years=years, smooth=smooth, corpus=corpus)
+        b = b_first.join(b_second)
+        sum_a = pd.DataFrame(a.mean(axis=0)).transpose()
+        sum_b = pd.DataFrame(b.mean(axis=0)).transpose()
+        f1 = sum_a[sum_a.columns[0]]/sum_a[sum_a.columns[1]]
+        f2 = sum_b[sum_b.columns[0]]/sum_b[sum_b.columns[1]]
+        res = f1/f2
+    except:
+        res = 'Ukjent'
+    return res
+
 def col_agg(df, col='sum'):
     c = df.sum(axis=0)
     c = pd.DataFrame(c)
