@@ -16,6 +16,19 @@ except:
 
 ngram_plot = lambda df,x=10,y=5 : df.plot(figsize=(x,y))
 
+def col_agg(df, col='sum'):
+    c = df.sum(axis=0)
+    c = pd.DataFrame(c)
+    c.columns = [col]
+    return c
+
+def row_agg(df, col='sum'):
+    c = df.sum(axis=1)
+    c = pd.DataFrame(c)
+    c.columns = [col]
+    return c
+
+
 def get_freq(urn, top=50, cutoff=3):
     """Get frequency list for urn"""
     r = requests.get("https://api.nb.no/ngram/urnfreq", json={'urn':urn, 'top':top, 'cutoff':cutoff})
