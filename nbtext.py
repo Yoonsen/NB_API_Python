@@ -14,9 +14,41 @@ except:
     "Wordcloud -- hmmm"
 
 
-ngram_plot = lambda df,x=10,y=5 : df.plot(figsize=(x,y))
+def urn_from_text(T):
+    """Return URNs as 13 digits (any sequence of 13 digits is counted as an URN)"""
+    import re
+    return re.findall("(?<=digibok_)[0-9]{13}", T)
+
+def metadata(urn="""text"""):
+    import requests
+    if type(urn) is str:
+        urns = urn
+    elif type(urn) is list:
+        urns = '-'.join(urn)
+    else:
+        urns = str(urn)
+        
+    r = requests.get("https://api.nb.no/ngram/meta", params={'urn':urns})
+    return r.json()
+
+def pure_urn(data):
+    """Convert URN-lists with extra data into list of serial numbers"""
+    if type(data) is list and type(data[0]) is list:
+        try:
+            res = [x[0] for x in data]
+        except:
+            res = []
+    elif type(data) is list and not type(data[0]) is list:
+        res = data
+    elif type(data) is str:
+        res = urn_from_text(data)
+    else:
+        res = []
+    return res
+
 
 def forskjell(first,second, rf, rs, years=(1980, 2010),smooth=1, corpus='bok'):
+    """Compute difference of difference (first/second)/(rf/rs)"""
     try:
         a_first = nb_ngram(first, years=years, smooth=smooth, corpus=corpus)
         a_second = nb_ngram(second, years=years, smooth=smooth, corpus=corpus)
@@ -738,6 +770,10 @@ def get_urnkonk(word, params=dict(), html=True):
     
     para = params
     para['word']= word
+    try:
+        para['urns'] = pure_urn(para['urns'])
+    except:
+        print('Parameter urns missing')
     r = requests.post('https://api.nb.no/ngram/urnkonk', json = para)
     if html:
         rows = ""
