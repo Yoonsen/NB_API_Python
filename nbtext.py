@@ -30,8 +30,9 @@ def forskjell(first,second, rf, rs, years=(1980, 2010),smooth=1, corpus='bok'):
         f2 = sum_b[sum_b.columns[0]]/sum_b[sum_b.columns[1]]
         res = f1/f2
     except:
-        res = 'Ukjent'
+        res = 'Mangler noen data - har bare for: ' + ', '.join([x for x in sum_a.columns.append(sum_b.columns)])
     return res
+    
 
 def col_agg(df, col='sum'):
     c = df.sum(axis=0)
