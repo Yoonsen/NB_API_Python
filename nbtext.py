@@ -58,7 +58,7 @@ def pure_urn(data):
     return res
 
 
-def difference(first,second, rf, rs, years=(1980, 2010),smooth=1, corpus='bok'):
+def difference(first, second, rf, rs, years=(1980, 2000),smooth=1, corpus='bok'):
     """Compute difference of difference (first/second)/(rf/rs)"""
     try:
         a_first = nb_ngram(first, years=years, smooth=smooth, corpus=corpus)
@@ -66,14 +66,16 @@ def difference(first,second, rf, rs, years=(1980, 2010),smooth=1, corpus='bok'):
         a = a_first.join(a_second)  
         b_first = nb_ngram(rf, years=years, smooth=smooth, corpus=corpus)
         b_second = nb_ngram(rs, years=years, smooth=smooth, corpus=corpus)
+        if rf == rs:
+            b_second.columns = [rs + '2']
         b = b_first.join(b_second)
-        sum_a = pd.DataFrame(a.mean(axis=0)).transpose()
-        sum_b = pd.DataFrame(b.mean(axis=0)).transpose()
-        f1 = sum_a[sum_a.columns[0]]/sum_a[sum_a.columns[1]]
-        f2 = sum_b[sum_b.columns[0]]/sum_b[sum_b.columns[1]]
+        s_a = a.mean()
+        s_b = b.mean()
+        f1 = s_a[a.columns[0]]/s_a[a.columns[1]]
+        f2 = s_b[b.columns[0]]/s_b[b.columns[1]]
         res = f1/f2
     except:
-        res = 'Mangler noen data - har bare for: ' + ', '.join([x for x in sum_a.columns.append(sum_b.columns)])
+        res = 'Mangler noen data - har bare for: ' + ', '.join([x for x in a.columns.append(b.columns)])
     return res
     
 
