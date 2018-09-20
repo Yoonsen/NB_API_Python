@@ -12,9 +12,9 @@ try:
     from wordcloud import WordCloud
 except:
     "Wordcloud -- hmmm"
-        
-# In[3]:
 
+
+ngram_plot = lambda df,x=10,y=5 : df.plot(figsize=(x,y))
 
 def get_freq(urn, top=50, cutoff=3):
     """Get frequency list for urn"""
