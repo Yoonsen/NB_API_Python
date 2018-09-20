@@ -35,7 +35,7 @@ def metadata(urn="""text"""):
     if type(urn) is str:
         urns = urn
     elif type(urn) is list:
-        urns = '-'.join(urn)
+        urns = '-'.join([str(u) for u in urn])
     else:
         urns = str(urn)
         
@@ -245,7 +245,10 @@ class Cluster:
         normalize_corpus_dataframe(combo_corp)
         korpus = compute_assoc(combo_corp, self.word, exponent)
         korpus.columns = [self.word]
-        res = korpus.sort_values(by=self.word, ascending=False).iloc[:top]
+        if top <= 0:
+            res = korpus.sort_values(by=self.word, ascending=False)
+        else:
+            res = korpus.sort_values(by=self.word, ascending=False).iloc[:top]
         if aslist == True:
             res = HTML(', '.join(list(res.index)))
         return res
@@ -287,12 +290,15 @@ class Cluster:
                 print('noe gikk galt')
         return True
     
+       
     def search_words(self, words, exponent=1.1):
         if type(words) is str:
             words = [w.strip() for w in words.split()]
-        sub = [w for w in words if w in self.cluster_set(exponent=exponent, top=0, aslist=False).index]
-        return self.cluster_set(exponent=exponent, top=0, aslist=False).transpose()[sub].transpose().sort_values(by=self.word, ascending=False)
-            
+        df = self.cluster_set(exponent=exponent, top=0, aslist=False)
+        sub= [w for w in words if w in df.index]
+        res = df.transpose()[sub].transpose().sort_values(by=df.columns[0], ascending=False)
+        return res
+         
         
 
             
