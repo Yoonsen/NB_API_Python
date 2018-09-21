@@ -35,7 +35,7 @@ def metadata(urn="""text"""):
     if type(urn) is str:
         urns = urn
     elif type(urn) is list:
-        urns = '-'.join(urn)
+        urns = '-'.join([str(u) for u in urn])
     else:
         urns = str(urn)
         
@@ -58,7 +58,7 @@ def pure_urn(data):
     return res
 
 
-def forskjell(first,second, rf, rs, years=(1980, 2010),smooth=1, corpus='bok'):
+def difference(first, second, rf, rs, years=(1980, 2000),smooth=1, corpus='bok'):
     """Compute difference of difference (first/second)/(rf/rs)"""
     try:
         a_first = nb_ngram(first, years=years, smooth=smooth, corpus=corpus)
@@ -66,14 +66,16 @@ def forskjell(first,second, rf, rs, years=(1980, 2010),smooth=1, corpus='bok'):
         a = a_first.join(a_second)  
         b_first = nb_ngram(rf, years=years, smooth=smooth, corpus=corpus)
         b_second = nb_ngram(rs, years=years, smooth=smooth, corpus=corpus)
+        if rf == rs:
+            b_second.columns = [rs + '2']
         b = b_first.join(b_second)
-        sum_a = pd.DataFrame(a.mean(axis=0)).transpose()
-        sum_b = pd.DataFrame(b.mean(axis=0)).transpose()
-        f1 = sum_a[sum_a.columns[0]]/sum_a[sum_a.columns[1]]
-        f2 = sum_b[sum_b.columns[0]]/sum_b[sum_b.columns[1]]
+        s_a = a.mean()
+        s_b = b.mean()
+        f1 = s_a[a.columns[0]]/s_a[a.columns[1]]
+        f2 = s_b[b.columns[0]]/s_b[b.columns[1]]
         res = f1/f2
     except:
-        res = 'Mangler noen data - har bare for: ' + ', '.join([x for x in sum_a.columns.append(sum_b.columns)])
+        res = 'Mangler noen data - har bare for: ' + ', '.join([x for x in a.columns.append(b.columns)])
     return res
     
 
@@ -243,7 +245,10 @@ class Cluster:
         normalize_corpus_dataframe(combo_corp)
         korpus = compute_assoc(combo_corp, self.word, exponent)
         korpus.columns = [self.word]
-        res = korpus.sort_values(by=self.word, ascending=False).iloc[:top]
+        if top <= 0:
+            res = korpus.sort_values(by=self.word, ascending=False)
+        else:
+            res = korpus.sort_values(by=self.word, ascending=False).iloc[:top]
         if aslist == True:
             res = HTML(', '.join(list(res.index)))
         return res
@@ -285,14 +290,32 @@ class Cluster:
                 print('noe gikk galt')
         return True
     
+       
     def search_words(self, words, exponent=1.1):
         if type(words) is str:
             words = [w.strip() for w in words.split()]
-        sub = [w for w in words if w in self.cluster_set(exponent=exponent, top=0, aslist=False).index]
-        return self.cluster_set(exponent=exponent, top=0, aslist=False).transpose()[sub].transpose().sort_values(by=self.word, ascending=False)
-            
+        df = self.cluster_set(exponent=exponent, top=0, aslist=False)
+        sub= [w for w in words if w in df.index]
+        res = df.transpose()[sub].transpose().sort_values(by=df.columns[0], ascending=False)
+        return res
+         
         
+def wildcardsearch(params = {'word': '', 'freq_lim':50, 'limit':50, 'factor':2}):
+    res = requests.get('https://api.nb.no/ngram/wildcards', params = params)
+    if res.status_code == 200:
+        result = res.json()
+    else:
+        result = {'status':'feil'}
+    resultat = pd.DataFrame.from_dict(result, orient='index')
+    if not(resultat.empty):
+        resultat.columns = [params['word']]
+    return resultat
 
+def sorted_wildcardsearch(params):
+    res = wildcardsearch(params)
+    if not res.empty:
+        res = res.sort_values(by=params['word'], ascending=False)
+    return res
             
 def make_newspaper_network(key, wordbag, titel='%', yearfrom='1980', yearto='1990', limit=500):
     import networkx as nx
