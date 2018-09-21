@@ -709,37 +709,30 @@ def get_konk(word, params=None, kind='html'):
     r = requests.get('https://api.nb.no/ngram/konk', params=para)
     if kind=='html':
         rows = ""
+        row_template = ("<tr>"
+                        "<td><a href='{urn}' target='_'>{urnredux}</a></td>"
+                        "<td>{b}</td>"
+                        "<td>{w}</td>"
+                        "<td style='text-align:left'>{a}</td>"
+                        "</tr>\n")
         if corpus == 'bok':
             for x in r.json():
-                rows += """<tr>
-                <td>
-                    <a href='{urn}' target='_'>{urnredux}</a>
-                    <td>{b}</td>
-                    <td>{w}</td>
-                    <td style='text-align:left'>{a}</td>
-                    </tr>\n""".format(urn=x['urn'], 
-                                      urnredux=','.join([x['author'], x['title'], str(x['year'])]),
-                                      b=x['before'],
-                                      w=x['word'],
-                                      a=x['after']
-                                     )
-            res = "<table>{rows}</table>".format(rows=rows)   
+                rows += row_template.format(
+                    urn=x['urn'],
+                    urnredux=','.join([x['author'], x['title'], str(x['year'])]),
+                    b=x['before'],
+                    w=x['word'],
+                    a=x['after'])
         else:
             #print(r.json())
             for x in r.json():
-                rows += """<tr>
-                <td>
-                    <a href='{urn}' target='_'>{urnredux}</a>
-                    <td>{b}</td>
-                    <td>{w}</td>
-                    <td style='text-align:left'>{a}</td>
-                    </tr>\n""".format(urn=x['urn'], 
-                                      urnredux='-'.join(x['urn'].split('_')[2:6:3]),
-                                      b=x['before'],
-                                      w=x['word'],
-                                      a=x['after']
-                                     )
-            res = "<table>{rows}</table>".format(rows=rows)
+                rows += row_template.format(
+                    urn=x['urn'],
+                    urnredux='-'.join(x['urn'].split('_')[2:6:3]),
+                    b=x['before'],
+                    w=x['word'],
+                    a=x['after'])
+        res = "<table>{rows}</table>".format(rows=rows)
         res = HTML(res)
     elif kind == 'json':
         res = r.json()
@@ -761,13 +754,16 @@ def get_konk(word, params=None, kind='html'):
 
 def konk_to_html(jsonkonk):
     rows = ""
+    row_template = ("<tr>"
+                    "<td><a href='{urn}' target='_'>{urnredux}</a></td>"
+                    "<td>{b}</td>"
+                    "<td>{w}</td>"
+                    "<td style='text-align:left'>{a}</td>"
+                    "</tr>\n")
     for x in jsonkonk:
-        rows += "<tr><td><a href='{urn}' target='_'>{urnredux}</a><td>{b}</td><td>{w}</td><td style='text-align:left'>{a}</td></tr>\n".format(urn=x['urn'],
-                                                                                                          urnredux=x['urn'],
-                                                                                                          b=x['before'],
-                                                                                                      w=x['word'],
-                                                                                                          a=x['after'])
-    res = "<table>{rows}</table>".format(rows=rows)   
+        rows += row_template.format(
+            urn=x['urn'], urnredux=x['urn'], b=x['before'], w=x['word'], a=x['after'])
+    res = "<table>{rows}</table>".format(rows=rows)
     return res
 
 def central_characters(graph, n=10):
