@@ -195,21 +195,6 @@ def get_corpus(top=5, cutoff=5, navn='%', corpus='avis', yearfrom=1800, yearto=2
     return res
 
 
-def make_a_collocation(word, period=(1990, 2000),before=5, after=5,corpus='avis', samplesize=100, limit=2000):
-    collocates = collocation(word, yearfrom=period[0], yearto = period[1], before=before, after=after,
-                            corpus=corpus, limit=limit)
-    collocates.columns = [word]
-    reference = get_corpus(yearfrom=period[0], yearto=period[1], samplesize=samplesize)
-    ref_agg = aggregate(reference)
-    ref_agg.columns = ['reference_corpus']
-    return  ref_agg
-
-
-
-def compute_assoc(coll_frame, column, exponent=1.1, refcolumn = 'reference_corpus'):
-    return pd.DataFrame(coll_frame[column]**exponent/coll_frame.mean(axis=1))
-    
-
 class Cluster:
     from IPython.display import HTML, display
     import pandas as pd
@@ -448,28 +433,9 @@ def cloud(pd, column='', top=200, width=1000, height=1000, background='black', f
     return
 
 
-def convert_list_of_freqs_to_dataframe(referanse):
-    """The function get_papers() returns a list of frequencies - convert it"""
-    res = []
-    for x in referanse:
-        res.append( dict(x))
-    result = pd.DataFrame(res).transpose()
-    normalize_corpus_dataframe(result)
-    return result
-
-def get_corpus(top=5, cutoff=5, navn='%', corpus='avis', yearfrom=1800, yearto=2020, samplesize=10):
-    if corpus == 'avis':
-        result = get_papers(top=top, cutoff=cutoff, navn=navn, yearfrom=yearfrom, yearto=yearto, samplesize=samplesize)
-        res = convert_list_of_freqs_to_dataframe(result)
-    else:
-        urns = get_urn({'author':navn, 'year':yearfrom, 'neste':yearto-yearfrom, 'limit':samplesize})
-        res = get_corpus_text([x[0] for x in urns], top=top, cutoff=cutoff)
-    return res
-
-
-def make_a_collocation(word, period=(1990, 2000),before=5, after=5,corpus='avis', samplesize=100, limit=2000):
-    collocates = collocation(word, yearfrom=period[0], yearto = period[1], before=before, after=after,
-                            corpus=corpus, limit=limit)
+def make_a_collocation(word, period=(1990, 2000), before=5, after=5, corpus='avis', samplesize=100, limit=2000):
+    collocates = collocation(word, yearfrom=period[0], yearto=period[1], before=before, after=after,
+                             corpus=corpus, limit=limit)
     collocates.columns = [word]
     reference = get_corpus(yearfrom=period[0], yearto=period[1], samplesize=samplesize)
     ref_agg = aggregate(reference)
@@ -658,9 +624,6 @@ def relaterte_ord(word, number = 20, score=False):
         res = [x[0] for x in res]
     return res
 
-def get_freq(urn, top=50, cutoff=3):
-    r = requests.get("https://api.nb.no/ngram/urnfreq", json={'urn':urn, 'top':top, 'cutoff':cutoff})
-    return Counter(dict(r.json()))
 
 def check_words(urn, ordbag):
     if type(urn) is list:
