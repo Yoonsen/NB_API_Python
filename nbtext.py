@@ -97,9 +97,12 @@ def get_freq(urn, top=50, cutoff=3):
     r = requests.get("https://api.nb.no/ngram/urnfreq", json={'urn':urn, 'top':top, 'cutoff':cutoff})
     return Counter(dict(r.json()))
 
-def get_urn(metadata = {}):
-    """Get urns fro metadata"""
-    if not ('next' in metadata or 'neste' in metadata) :
+
+def get_urn(metadata=None):
+    """Get urns from metadata"""
+    if metadata is None:
+        metadata = {}
+    if not ('next' in metadata or 'neste' in metadata):
         metadata['next'] = 100
     if not 'year' in metadata:
         metadata['year'] = 1900
@@ -283,10 +286,12 @@ class Cluster:
         sub= [w for w in words if w in df.index]
         res = df.transpose()[sub].transpose().sort_values(by=df.columns[0], ascending=False)
         return res
-         
-        
-def wildcardsearch(params = {'word': '', 'freq_lim':50, 'limit':50, 'factor':2}):
-    res = requests.get('https://api.nb.no/ngram/wildcards', params = params)
+
+
+def wildcardsearch(params=None):
+    if params is None:
+        params = {'word': '', 'freq_lim': 50, 'limit': 50, 'factor': 2}
+    res = requests.get('https://api.nb.no/ngram/wildcards', params=params)
     if res.status_code == 200:
         result = res.json()
     else:
@@ -590,12 +595,14 @@ class Corpus:
         return res
             
         
-        
-def vekstdiagram(urn, params=dict()):
+def vekstdiagram(urn, params=None):
     import requests
     import pandas as pd
     
-    # if urn is the value of get_urn() it is a list 
+    if params is None:
+        params = {}
+
+    # if urn is the value of get_urn() it is a list
     # otherwise it just passes
     if type(urn) is list:
         urn = urn[0]
@@ -682,10 +689,14 @@ def make_graph(word):
     G.add_weighted_edges_from(edgelist)
     return G
 
-def get_konk(word, params=dict(), kind='html'):
+
+def get_konk(word, params=None, kind='html'):
     import requests
     import pandas as pd
-    
+
+    if params is None:
+        params = {}
+
     para = params
     para['word']= word
 
@@ -698,37 +709,30 @@ def get_konk(word, params=dict(), kind='html'):
     r = requests.get('https://api.nb.no/ngram/konk', params=para)
     if kind=='html':
         rows = ""
+        row_template = ("<tr>"
+                        "<td><a href='{urn}' target='_'>{urnredux}</a></td>"
+                        "<td>{b}</td>"
+                        "<td>{w}</td>"
+                        "<td style='text-align:left'>{a}</td>"
+                        "</tr>\n")
         if corpus == 'bok':
             for x in r.json():
-                rows += """<tr>
-                <td>
-                    <a href='{urn}' target='_'>{urnredux}</a>
-                    <td>{b}</td>
-                    <td>{w}</td>
-                    <td style='text-align:left'>{a}</td>
-                    </tr>\n""".format(urn=x['urn'], 
-                                      urnredux=','.join([x['author'], x['title'], str(x['year'])]),
-                                      b=x['before'],
-                                      w=x['word'],
-                                      a=x['after']
-                                     )
-            res = "<table>{rows}</table>".format(rows=rows)   
+                rows += row_template.format(
+                    urn=x['urn'],
+                    urnredux=','.join([x['author'], x['title'], str(x['year'])]),
+                    b=x['before'],
+                    w=x['word'],
+                    a=x['after'])
         else:
             #print(r.json())
             for x in r.json():
-                rows += """<tr>
-                <td>
-                    <a href='{urn}' target='_'>{urnredux}</a>
-                    <td>{b}</td>
-                    <td>{w}</td>
-                    <td style='text-align:left'>{a}</td>
-                    </tr>\n""".format(urn=x['urn'], 
-                                      urnredux='-'.join(x['urn'].split('_')[2:6:3]),
-                                      b=x['before'],
-                                      w=x['word'],
-                                      a=x['after']
-                                     )
-            res = "<table>{rows}</table>".format(rows=rows)
+                rows += row_template.format(
+                    urn=x['urn'],
+                    urnredux='-'.join(x['urn'].split('_')[2:6:3]),
+                    b=x['before'],
+                    w=x['word'],
+                    a=x['after'])
+        res = "<table>{rows}</table>".format(rows=rows)
         res = HTML(res)
     elif kind == 'json':
         res = r.json()
@@ -750,13 +754,16 @@ def get_konk(word, params=dict(), kind='html'):
 
 def konk_to_html(jsonkonk):
     rows = ""
+    row_template = ("<tr>"
+                    "<td><a href='{urn}' target='_'>{urnredux}</a></td>"
+                    "<td>{b}</td>"
+                    "<td>{w}</td>"
+                    "<td style='text-align:left'>{a}</td>"
+                    "</tr>\n")
     for x in jsonkonk:
-        rows += "<tr><td><a href='{urn}' target='_'>{urnredux}</a><td>{b}</td><td>{w}</td><td style='text-align:left'>{a}</td></tr>\n".format(urn=x['urn'],
-                                                                                                          urnredux=x['urn'],
-                                                                                                          b=x['before'],
-                                                                                                      w=x['word'],
-                                                                                                          a=x['after'])
-    res = "<table>{rows}</table>".format(rows=rows)   
+        rows += row_template.format(
+            urn=x['urn'], urnredux=x['urn'], b=x['before'], w=x['word'], a=x['after'])
+    res = "<table>{rows}</table>".format(rows=rows)
     return res
 
 def central_characters(graph, n=10):
@@ -774,10 +781,13 @@ def central_betweenness_characters(graph, n=10):
     return res
     
 
-def get_urnkonk(word, params=dict(), html=True):
+def get_urnkonk(word, params=None, html=True):
     import requests
     import pandas as pd
-    
+
+    if params is None:
+        params = {}
+
     para = params
     para['word']= word
     try:
