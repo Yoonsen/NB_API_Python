@@ -1,25 +1,25 @@
+import json
+import random
+import re
+from collections import Counter
+
 import pandas as pd
 import matplotlib.pyplot as plt
-import numpy as np
-from collections import Counter
-import json
 import requests
 from IPython.display import HTML
 import seaborn as sns
-from scipy.spatial.distance import cosine
 import networkx as nx
+from pylab import rcParams
 try:
     from wordcloud import WordCloud
-except:
-    "Wordcloud -- hmmm"
+except ImportError:
+    print("wordcloud er ikke installert, kan ikke lage ordskyer")
 
 def totals(top=200):
-    import requests
     r = requests.get("https://api.nb.no/ngram/totals", json={'top':top})
     return dict(r.json())
 
 def navn(urn):
-    import requests
     if type(urn) is list:
         urn = urn[0]
     r = requests.get('https://api.nb.no/ngram/tingnavn', json={'urn':urn})
@@ -27,11 +27,9 @@ def navn(urn):
     
 def urn_from_text(T):
     """Return URNs as 13 digits (any sequence of 13 digits is counted as an URN)"""
-    import re
     return re.findall("(?<=digibok_)[0-9]{13}", T)
 
 def metadata(urn="""text"""):
-    import requests
     if type(urn) is str:
         urns = urn
     elif type(urn) is list:
@@ -199,19 +197,13 @@ def get_corpus(top=5, cutoff=5, navn='%', corpus='avis', yearfrom=1800, yearto=2
 
 
 class Cluster:
-    from IPython.display import HTML, display
-    import pandas as pd
-    import json
-    
     def __init__(self, word = '', filename = '', period = (1950,1960) , before = 5, after = 5, corpus='avis', reference = 200, 
                  word_samples=1000):
-        import pandas
-        
         if word != '':
             self.collocates = collocation(word, yearfrom=period[0], yearto = period[1], before=before, after=after,
                                 corpus=corpus, limit=word_samples)
             self.collocates.columns = [word]
-            if type(reference) is pandas.core.frame.DataFrame:
+            if type(reference) is pd.core.frame.DataFrame:
                 reference = reference
             elif type(reference) is int:
                 reference = get_corpus(yearfrom=period[0], yearto=period[1], corpus=corpus, samplesize=reference)
@@ -308,7 +300,6 @@ def sorted_wildcardsearch(params):
     return res
             
 def make_newspaper_network(key, wordbag, titel='%', yearfrom='1980', yearto='1990', limit=500):
-    import networkx as nx
     if type(wordbag) is str:
         wordbag = wordbag.split()
     r = requests.post("https://api.nb.no/ngram/avisgraph", json={
@@ -333,17 +324,12 @@ def make_network(urn, wordbag, cutoff=0):
     return G
 
 def make_network_graph(urn, wordbag, cutoff=0):
-    import networkx as nx
-    
     r = requests.post("https://api.nb.no/ngram/graph", json={'urn':urn, 'words':wordbag})
     G = nx.Graph()
     G.add_weighted_edges_from([(x,y,z) for (x,y,z) in r.json() if z > cutoff and x != y])
     return G
 
 def draw_graph_centrality(G, h=15, v=10, fontsize=20, k=0.2, arrows=False, font_color='black', threshold=0.01): 
-    from pylab import rcParams
-    import matplotlib.pyplot as plt
-    
     node_dict = nx.degree_centrality(G)
     subnodes = dict({x:node_dict[x] for x in node_dict if node_dict[x] >= threshold})
     x, y = rcParams['figure.figsize']
@@ -405,7 +391,6 @@ def les_serie_cluster(word, startår, sluttår, inkrement):
 
 
 def make_cloud(json_text, top=100, background='white', stretch=lambda x: 2**(10*x), width=500, height=500, font_path=None):
-    from collections import Counter
     pairs0 = Counter(json_text).most_common(top)
     pairs = {x[0]:stretch(x[1]) for x in pairs0}
     wc = WordCloud(
@@ -418,7 +403,6 @@ def make_cloud(json_text, top=100, background='white', stretch=lambda x: 2**(10*
     return wc
 
 def draw_cloud(sky, width=20, height=20, fil=''):
-    from matplotlib import pyplot as plt
     plt.figure(figsize=(width,height))
     plt.imshow(sky, interpolation='bilinear')
     figplot = plt.gcf()
@@ -427,7 +411,6 @@ def draw_cloud(sky, width=20, height=20, fil=''):
     return 
 
 def cloud(pd, column='', top=200, width=1000, height=1000, background='black', file='', stretch=10, font_path=None):
-    import json
     if column == '':
         column = pd.columns[0]
     data = json.loads(pd[column].to_json())
@@ -454,15 +437,8 @@ def compute_assoc(coll_frame, column, exponent=1.1, refcolumn = 'reference_corpu
     
 
 class Corpus:
-    from IPython.display import HTML, display
-    import pandas as pd
-    import json
-    
     def __init__(self, filename = '', period = (1950,1960), author='%', 
                  title='%', ddk='%', gender='%', subject='%', reference = 100, max_books=100):
-        import pandas
-        import random
-        
         params = {
             'year':period[0], 
             'next': period[1]-period[0], 
@@ -486,7 +462,7 @@ class Corpus:
             else:
                 target_urn = målkorpus_urn
                 
-            if type(reference) is pandas.core.frame.DataFrame:
+            if type(reference) is pd.core.frame.DataFrame:
                 reference = reference 
             else:
                 referansekorpus_def = get_urn({'year':period[0], 'next':period[1]-period[0], 'limit':reference})
@@ -596,9 +572,6 @@ class Corpus:
             
         
 def vekstdiagram(urn, params=None):
-    import requests
-    import pandas as pd
-    
     if params is None:
         params = {}
 
@@ -622,9 +595,6 @@ def plot_sammen_vekst(urn, ordlister, window=5000, pr = 100):
     return pd.concat(rammer)
 
 def relaterte_ord(word, number = 20, score=False):
-    import networkx as nx
-    from networkx.algorithms import community
-    
     G = make_graph(word)
     res = Counter(nx.eigenvector_centrality(G)).most_common(number) 
     if score == False:
@@ -691,9 +661,6 @@ def make_graph(word):
 
 
 def get_konk(word, params=None, kind='html'):
-    import requests
-    import pandas as pd
-
     if params is None:
         params = {}
 
@@ -767,24 +734,15 @@ def konk_to_html(jsonkonk):
     return res
 
 def central_characters(graph, n=10):
-    import networkx as nx
-    from collections import Counter
-    
     res = Counter(nx.degree_centrality(graph)).most_common(n)
     return res
 
 def central_betweenness_characters(graph, n=10):
-    import networkx as nx
-    from collections import Counter
-    
     res = Counter(nx.betweenness_centrality(graph)).most_common(n)
     return res
     
 
 def get_urnkonk(word, params=None, html=True):
-    import requests
-    import pandas as pd
-
     if params is None:
         params = {}
 
