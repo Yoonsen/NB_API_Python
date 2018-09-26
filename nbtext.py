@@ -595,8 +595,6 @@ def plot_sammen_vekst(urn, ordlister, window=5000, pr = 100):
     return pd.concat(rammer)
 
 def relaterte_ord(word, number = 20, score=False):
-    from networkx.algorithms import community
-    
     G = make_graph(word)
     res = Counter(nx.eigenvector_centrality(G)).most_common(number) 
     if score == False:
