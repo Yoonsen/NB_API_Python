@@ -15,6 +15,11 @@ try:
 except ImportError:
     print("wordcloud er ikke installert, kan ikke lage ordskyer")
 
+    
+def sttr(urn, chunk=5000):
+    r = requests.get("https://api.nb.no/ngram/sttr", json = {'urn':urn, 'chunk':chunk})
+    return r.json()
+                     
 def totals(top=200):
     r = requests.get("https://api.nb.no/ngram/totals", json={'top':top})
     return dict(r.json())
