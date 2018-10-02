@@ -48,11 +48,9 @@ def metadata(urn="""text"""):
 
 def pure_urn(data):
     """Convert URN-lists with extra data into list of serial numbers.
-
     Args:
         data: May be a list of URNs, a list of lists with URNs as their
             initial element, or a string of raw texts containing URNs
-
     Returns:
         List[str]: A list of URNs. Empty list if input is on the wrong
             format or contains no URNs
@@ -794,7 +792,10 @@ def get_urnkonk(word, params=None, html=True):
     return res
 
 def frame(something, name):
-    res =  pd.DataFrame(something)
+    if isinstance(something, dict):
+        res = pd.DataFrame.from_dict(something, orient='index')
+    else:
+        res =  pd.DataFrame(something)
     res.columns = [name]
     return res
 
