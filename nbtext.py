@@ -40,20 +40,31 @@ def metadata(urn="""text"""):
     r = requests.get("https://api.nb.no/ngram/meta", params={'urn':urns})
     return r.json()
 
+
 def pure_urn(data):
-    """Convert URN-lists with extra data into list of serial numbers"""
-    if type(data) is list and type(data[0]) is list:
-        try:
-            res = [x[0] for x in data]
-        except:
-            res = []
-    elif type(data) is list and not type(data[0]) is list:
-        res = data
-    elif type(data) is str:
-        res = urn_from_text(data)
-    else:
-        res = []
-    return res
+    """Convert URN-lists with extra data into list of serial numbers.
+
+    Args:
+        data: May be a list of URNs, a list of lists with URNs as their
+            initial element, or a string of raw texts containing URNs
+
+    Returns:
+        List[str]: A list of URNs. Empty list if input is on the wrong
+            format or contains no URNs
+    """
+    if isinstance(data, list):
+        if not data:  # Empty list
+            return []
+        if isinstance(data[0], list):  # List of lists
+            try:
+                return [x[0] for x in data]
+            except IndexError:
+                return []
+        else:  # Assume data is already a list of URNs
+            return data
+    elif isinstance(data, str):
+        return urn_from_text(data)
+    return []
 
 
 def difference(first, second, rf, rs, years=(1980, 2000),smooth=1, corpus='bok'):
