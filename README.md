@@ -128,7 +128,7 @@ See `Corpus` notebook for examples and explanation.
 ### `Corpus_urn`
 See example notebook
 
-## Graphs and network analysis
+# Graphs and network analysis
 
 ### `make_newspaper_network(key, wordbag, titel='%', yearfrom='1980', yearto='1990', limit=500)`
 Seems not to work at the moment.
@@ -157,7 +157,13 @@ Make and draw a cloud from  a pandas dataframe, using `make_cloud` and `draw_clo
 # Growth diagrams (sentiment analysis)
 
 ### `vekstdiagram(urn, params=None)`
-Make a growth diagram for a given book using a set of words \[more to come]
+Make a growth diagram for a given book using a set of words:
+Parameters 
+``
+'words': list of words 
+'window': chunk size in the book
+'pr': how many words are skipped before next chunk
+``
 
 ### `plot_sammen_vekst(urn, ordlister, window=5000, pr = 100)`
 For ploting more than one growth diagram. Have a look at example notebook.
