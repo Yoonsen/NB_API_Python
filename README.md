@@ -6,10 +6,10 @@ Here is link to the [binder.org version](https://mybinder.org/v2/gh/Yoonsen/NB_A
 
 Here is a short description of each function, which can be used as commands in a notebook. The source code is in file `nbtext.py`, have a look at that to see how API commands and URLs are used.
 
-### sttr(urn, chunk=5000):
+### `sttr(urn, chunk=5000)`
 Compute a standardized type/token-ratio for text identified with urn. The function expects the serial number of a URN for a book. Returns a number.
 
-### totals(top=200):
+### `totals(top=200)`
 Returns a dictionary of the top ´top´ words in the digital collection
 
 ### navn(urn):
