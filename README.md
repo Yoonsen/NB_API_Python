@@ -6,53 +6,54 @@ Here is link to the [binder.org version](https://mybinder.org/v2/gh/Yoonsen/NB_A
 
 Here is a short description of each function, which can be used as commands in a notebook
 
-## sttr(urn, chunk=5000):
+### sttr(urn, chunk=5000):
 Compute a standardized type/token-ratio for text identified with urn. The function expects the serial number of a URN for a book. Returns a number.
 
-## totals(top=200):
+### totals(top=200):
 Returns a dictionary of the top ´top´ words in the digital collection
 
-## navn(urn):
+### navn(urn):
 Returns a dictionary of frequency of possible names from URN as serial number.    
 
-## urn_from_text(T):
+### urn_from_text(T):
 Return a list of URNs as 13 digit serial numbers. 
 
-## metadata(urn="""text"""):
+### metadata(urn="""text"""):
 Returns a list of metada entries for given URN.
 
-## pure_urn(data):
+### pure_urn(data):
 Convert URN-lists with extra data into list of serial numbers.
-    Args:
+```    Args:
         data: May be a list of URNs, a list of lists with URNs as their
             initial element, or a string of raw texts containing URNs
     Returns:
         List[str]: A list of URNs. Empty list if input is on the wrong
             format or contains no URNs
+```
 
-## difference(first, second, rf, rs, years=(1980, 2000),smooth=1, corpus='bok'):
+### difference(first, second, rf, rs, years=(1980, 2000),smooth=1, corpus='bok'):
 Compute difference of difference (first/second)/(rf/rs) for ngrams.
 
-## col_agg(df, col='sum'):
+### col_agg(df, col='sum'):
 Aggregate columns of a panda dataframe.
 
-## row_agg(df, col='sum'):
+### row_agg(df, col='sum'):
 Aggregate rows of a panda dataframe.
 
 
-## get_freq(urn, top=50, cutoff=3):
+### get_freq(urn, top=50, cutoff=3):
 Get frequency list for urn.
 
-## get_urn(metadata=None):
+### get_urn(metadata=None):
 Get URNSs from metadata specified as a dictionary. Keys specified in quotes are:
-"corpus": "avis" or "bok"
-"author": wildcard match using % as wildcard.
-"title": wildcard match using %. For newspapers this corresponds to name of paper.
-"year": starting year as number or number as string.
-"next": the next number of years starting from ´year´
-"ddk": Dewy decimal number as wildcard match e.g. "64%" 
-"gender": value is "m" for male or "f" for female
-"subject": keywords used to annotate text in the national bibliography.
+* "corpus": "avis" or "bok"
+* "author": wildcard match using % as wildcard.
+* "title": wildcard match using %. For newspapers this corresponds to name of paper.
+* "year": starting year as number or number as string.
+* "next": the next number of years starting from ´year´
+*  "ddk": Dewy decimal number as wildcard match e.g. "64%" 
+  "gender": value is "m" for male or "f" for female
+  "subject": keywords used to annotate text in the national bibliography.
 
 
 ## get_papers(top=5, cutoff=5, navn='%', yearfrom=1800, yearto=2020, samplesize=100):
