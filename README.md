@@ -159,6 +159,7 @@ Make and draw a cloud from  a pandas dataframe, using `make_cloud` and `draw_clo
 ### `vekstdiagram(urn, params=None)`
 Make a growth diagram for a given book using a set of words:
 Parameters 
+
 ``
 'words': list of words 
 'window': chunk size in the book
