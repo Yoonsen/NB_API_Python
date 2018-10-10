@@ -230,6 +230,8 @@ Returns a dictionary of frequency of possible names from URN as serial number.
 A wrapper for heatmap of df as a Pandas dataframe, like this:
 ``return df.fillna(0).style.background_gradient(cmap=sns.light_palette(color, as_cmap=True))``
 
+### `df_combine(array_df)`
+Combine one column dataframes into one dataframe.
 
 ### `wildcardsearch(params=None)`
 Default values: ``params = {'word': '', 'freq_lim': 50, 'limit': 50, 'factor': 2}``
