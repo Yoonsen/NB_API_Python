@@ -89,7 +89,17 @@ def difference(first, second, rf, rs, years=(1980, 2000),smooth=1, corpus='bok')
     except:
         res = 'Mangler noen data - har bare for: ' + ', '.join([x for x in a.columns.append(b.columns)])
     return res
-    
+
+def df_combine(array_df):
+    """Combine one columns dataframes"""
+    import pandas as pd
+    cols = []
+    for i in range(len(a)):
+        #print(i)
+        if array_df[i].columns[0] in cols:
+            array_df[i].columns = [array_df[i].columns[0] + '_' + str(i)]
+        cols.append(array_df[i].columns[0])
+    return pd.concat(a, axis=1, sort=True)
 
 def col_agg(df, col='sum'):
     c = df.sum(axis=0)
