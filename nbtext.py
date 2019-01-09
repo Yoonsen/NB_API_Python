@@ -157,6 +157,7 @@ def get_freq(urn, top=50, cutoff=3):
 
 
 def book_urn(author='%', title="%", ddk="%", subject="", period=(1100, 2020), gender="", limit=20 ):
+    """Get URNs for books with metadata"""
     return get_urn({
         "author": author,
         "title":title,
@@ -699,7 +700,7 @@ class Corpus:
 
             #print("Antall bøker i målkorpus ", len(målkorpus_def))
             if isinstance(målkorpus_def[0], list):
-                målkorpus_urn = [x[0] for x in målkorpus_def]
+                målkorpus_urn = [str(x[0]) for x in målkorpus_def]
                 #print(målkorpus_urn)
             else:
                 målkorpus_urn = målkorpus_def
@@ -717,7 +718,7 @@ class Corpus:
 
             #print("Antall bøker i referanse: ", len(referansekorpus_def))
             # referansen skal være distinkt fra målkorpuset
-            referanse_urn = [x[0] for x in referansekorpus_def]
+            referanse_urn = [str(x[0]) for x in referansekorpus_def]
             self.reference_urn = referanse_urn
             self.target_urn = target_urn
             # make sure there is no overlap between target and reference
@@ -890,14 +891,14 @@ class Corpus:
         """Make a cascaded network of collocations"""
 
         self.collocations(target_word, before=before, after=after, limit=limit)
-        coll = self.sort_collocations(target_word)
+        coll = self.sort_collocations(target_word, exp = exp)
         target_graf = dict()
         edges = []
         for word in coll[:top].index:
             edges.append((target_word, word))
             if word.isalpha():
                 self.collocations(word, before=before, after=after,  limit=limit)
-                for w in self.sort_collocations(word)[:top].index:
+                for w in self.sort_collocations(word, exp = exp)[:top].index:
                     if w.isalpha():
                         edges.append((word, w)) 
 
